@@ -1,36 +1,44 @@
-import React from 'react';
-
+import React, { useState, useMemo, createContext } from 'react';
+import { ThemeProvider, CssBaseline, Box, createTheme, type PaletteMode } from '@mui/material';
+import { getDesignTokens } from './theme';
+import Navbar from './components/Navbar';
 import Hero from './sections/Hero';
+import Features from './sections/Features';
 import Gallery from './sections/Gallery';
-import Services from './sections/Services';
+import Footer from './components/Footer';
+
 import Contact from './sections/Contact';
 
+export const ColorModeContext = createContext({ toggleColorMode: () => {} });
+
 const App: React.FC = () => {
+  const [mode, setMode] = useState<PaletteMode>('light');
+
+  const colorMode = useMemo(
+    () => ({
+      toggleColorMode: () => {
+        setMode((prevMode) => (prevMode === 'light' ? 'dark' : 'light'));
+      },
+    }),
+    [],
+  );
+
+  const theme = useMemo(() => createTheme(getDesignTokens(mode)), [mode]);
+
   return (
-    <div className="min-h-screen bg-accent text-dark overflow-x-hidden">
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md shadow-sm py-4">
-        <div className="container mx-auto px-6 flex justify-between items-center">
-          <h1 className="text-2xl font-serif font-bold text-primary">Honey Mehindi Arts</h1>
-          <ul className="hidden md:flex space-x-8 font-medium text-primary">
-            <li><a href="#hero" className="hover:text-secondary transition-colors">Home</a></li>
-            <li><a href="#gallery" className="hover:text-secondary transition-colors">Gallery</a></li>
-            <li><a href="#services" className="hover:text-secondary transition-colors">Services</a></li>
-            <li><a href="#contact" className="hover:text-secondary transition-colors">Contact</a></li>
-          </ul>
-        </div>
-      </nav>
-
-      <main>
-        <Hero />
-        <Gallery />
-        <Services />
-        <Contact />
-      </main>
-
-      <footer className="bg-primary text-white py-8 text-center">
-        <p>&copy; {new Date().getFullYear()} Honey Mehindi Arts. All rights reserved.</p>
-      </footer>
-    </div>
+    <ColorModeContext.Provider value={colorMode}>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <Box sx={{ bgcolor: 'background.default', minHeight: '100vh', color: 'text.primary' }}>
+          <Navbar />
+          <Hero />
+          <Features />
+          <Gallery />
+          <Contact />
+          <Footer />
+        </Box>
+      </ThemeProvider>
+    </ColorModeContext.Provider>
   );
 };
 
